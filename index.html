@@ -3,6 +3,8 @@
     <head>
         <title>I need an app name</title>
 
+        <link rel="stylesheet" href="style.css">
+
         <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
@@ -11,44 +13,61 @@
 
             var handleSwitchState = function(snapshot) {
                 var item = snapshot.val();
-                $("#" + snapshot.key()).val(item.state);
+                $("#" + snapshot.key()).attr('checked', item.checked);
             };
 
             myFirebaseRef.on('child_added', handleSwitchState);
             myFirebaseRef.on('child_changed', handleSwitchState);
 
+            var initializeSwitchItems = function() {
+                var NUM_COLS = 3;
+                var NUM_ROWS = NUM_COLS * 2;
+
+                var switchArray = new Array(NUM_ROWS * NUM_COLS);
+
+                for (var i=0; i < NUM_ROWS; i++) {
+                    switchArray[i] = new Array(NUM_COLS);
+                    for (var j=0; j < NUM_COLS; j++) {
+                        var objId = "switch" + i + j;
+                        switchArray[i][j] =
+                            $("<div>", { class: "onoffswitch" }).append(
+                                $("<input>", { type: "checkbox",
+                                               name: "onoffswitch",
+                                               class: "onoffswitch-checkbox",
+                                               id: objId })).append(
+                                $("<label>", { class: "onoffswitch-label",
+                                               for: objId }));
+                    }
+                }
+
+                var table = $('<table>', { class: "switchTable" });
+                for (var i=0; i < NUM_ROWS; i++) {
+                    var tr = $('<tr>');
+                    for (var j=0; j < NUM_COLS; j++) {
+                        tr.append($('<td>').append(switchArray[i][j]));
+                    }
+                    table.append(tr);
+                }
+
+                $('body').prepend(table);
+            };
+
             $(document).ready(function() {
-                $(':button').on('click', function(e) {
+                initializeSwitchItems();
+
+                $(':checkbox').on('change', function(e) {
                     var id = $(this).attr('id');
-                    var currentState = $(this).val();
-                    var newState = currentState == "on" ? "off" : "on";
-                    var switchObj;
-                    var switchState;
-
-                    $(this).val(newState);
-
-                    switchState = {
-                        state: newState,
-                    };
-
-                    switchObj = {};
-                    switchObj[id] = switchState;
+                    var switchObj = {};
+                    switchObj[id] = { checked: this.checked};
 
                     myFirebaseRef.update(switchObj);
                 });
             });
+
         </script>
 
     </head>
+
     <body>
-
-        <input type="button" id="switch00" value="on">
-
-        <input type="button" id="switch10" value="off">
-
-        <input type="button" id="switch20" value="off">
-
-        <input type="button" id="switch30" value="on">
-
     </body>
 </html>
