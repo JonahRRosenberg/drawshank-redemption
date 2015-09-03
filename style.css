@@ -3,6 +3,21 @@
     padding: 10px
 }
 
+#connected {
+    width: 90px;
+    height: 80px;
+}
+
+#goDrawImage {
+    width: 80px;
+    height: 80px;
+}
+
+#goSwitchImage {
+    width: 80px;
+    height: 80px;
+}
+
 
 /* On/Off switch taken from https://proto.io/freebies/onoff/ */
 

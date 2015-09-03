@@ -13,11 +13,21 @@
 
             var handleSwitchState = function(snapshot) {
                 var item = snapshot.val();
-                $("#" + snapshot.key()).prop("checked", item.checked).checkboxradio("refresh");
+                $("#" + snapshot.key()).prop("checked", item.checked);
             };
 
             myFirebaseRef.on('child_added', handleSwitchState);
             myFirebaseRef.on('child_changed', handleSwitchState);
+
+            // Handling connectivity
+            var connectedRef = new Firebase("https://burning-torch-3848.firebaseio.com/.info/connected");
+            connectedRef.on("value", function(snap) {
+              if (snap.val() === true) {
+                $("#connected").attr("src", "resources/thumbs-up-button.jpg");
+              } else {
+                $("#connected").attr("src", "resources/thumbs-down-button.jpg");
+              }
+            });
 
             var initializeSwitchItems = function() {
                 var NUM_COLS = 3;
@@ -49,7 +59,7 @@
                     table.append(tr);
                 }
 
-                $('body').prepend(table);
+                $('body').append(table);
             };
 
             $(document).ready(function() {
@@ -69,5 +79,10 @@
     </head>
 
     <body>
+
+        <img id="connected"></img>
+
+        <a href="drawing.html"><img id="goDrawImage" src="resources/go-draw.jpg"></img></a>
+
     </body>
 </html>
