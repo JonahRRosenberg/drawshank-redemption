@@ -8,7 +8,10 @@
         <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
+        <script src="update-connectivity.js"></script>
+
         <script>
+
             var myFirebaseRef = new Firebase("https://burning-torch-3848.firebaseio.com/");
 
             var handleSwitchState = function(snapshot) {
@@ -18,16 +21,6 @@
 
             myFirebaseRef.on('child_added', handleSwitchState);
             myFirebaseRef.on('child_changed', handleSwitchState);
-
-            // Handling connectivity
-            var connectedRef = new Firebase("https://burning-torch-3848.firebaseio.com/.info/connected");
-            connectedRef.on("value", function(snap) {
-              if (snap.val() === true) {
-                $("#connected").attr("src", "resources/thumbs-up-button.jpg");
-              } else {
-                $("#connected").attr("src", "resources/thumbs-down-button.jpg");
-              }
-            });
 
             var initializeSwitchItems = function() {
                 var NUM_COLS = 3;
