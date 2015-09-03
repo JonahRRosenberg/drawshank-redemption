@@ -58,7 +58,7 @@
             $(document).ready(function() {
                 initializeSwitchItems();
 
-                var myFirebaseRef = new Firebase("https://burning-torch-3848.firebaseio.com/");
+                var myFirebaseRef = new Firebase("https://burning-torch-3848.firebaseio.com/switch-states");
 
                 var handleSwitchState = function(snapshot) {
                     var item = snapshot.val();
