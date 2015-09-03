@@ -13,7 +13,7 @@
 
             var handleSwitchState = function(snapshot) {
                 var item = snapshot.val();
-                $("#" + snapshot.key()).attr('checked', item.checked);
+                $("#" + snapshot.key()).prop("checked", item.checked).checkboxradio("refresh");
             };
 
             myFirebaseRef.on('child_added', handleSwitchState);
