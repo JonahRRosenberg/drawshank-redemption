@@ -65,6 +65,10 @@
 
                     myFirebaseRef.update(switchObj);
                 });
+
+                // Preload thumbs down image to test disconnecting from internet
+                preloadedImg = new Image();
+                preloadedImg.src = "resources/thumbs-down-button.jpg";
             });
 
         </script>
