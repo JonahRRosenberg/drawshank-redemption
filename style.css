@@ -1,6 +1,12 @@
 
+@media only screen and (max-device-width: 480px) {
+    .switchTable {
+        width: 100%;
+    }
+}
+
 .switchTable td {
-    padding: 10px
+    padding: 10px;
 }
 
 #connected {
