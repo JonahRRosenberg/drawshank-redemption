@@ -10,17 +10,17 @@
 
         <script src="update-connectivity.js"></script>
 
+        <meta name="viewport" content="initial-scale=1.0"> 
+
+    </head>
+
+    <body>
+
+        <img id="connected"></img>
+
+        <a href="drawing.html"><img id="goDrawImage" src="resources/go-draw.jpg"></img></a>
+
         <script>
-
-            var myFirebaseRef = new Firebase("https://burning-torch-3848.firebaseio.com/");
-
-            var handleSwitchState = function(snapshot) {
-                var item = snapshot.val();
-                $("#" + snapshot.key()).prop("checked", item.checked);
-            };
-
-            myFirebaseRef.on('child_added', handleSwitchState);
-            myFirebaseRef.on('child_changed', handleSwitchState);
 
             var initializeSwitchItems = function() {
                 var NUM_COLS = 3;
@@ -58,6 +58,16 @@
             $(document).ready(function() {
                 initializeSwitchItems();
 
+                var myFirebaseRef = new Firebase("https://burning-torch-3848.firebaseio.com/");
+
+                var handleSwitchState = function(snapshot) {
+                    var item = snapshot.val();
+                    $("#" + snapshot.key()).prop("checked", item.checked);
+                };
+
+                myFirebaseRef.on('child_added', handleSwitchState);
+                myFirebaseRef.on('child_changed', handleSwitchState);
+
                 $(':checkbox').on('change', function(e) {
                     var id = $(this).attr('id');
                     var switchObj = {};
@@ -73,15 +83,6 @@
 
         </script>
 
-        <meta name="viewport" content="initial-scale=1.0"> 
-
-    </head>
-
-    <body>
-
-        <img id="connected"></img>
-
-        <a href="drawing.html"><img id="goDrawImage" src="resources/go-draw.jpg"></img></a>
 
     </body>
 </html>
