@@ -1,11 +1,54 @@
 <!doctype html>
 <html>
-  <head>
-    <title>I need an app name</title>
-  </head>
-  <body>
+    <head>
+        <title>I need an app name</title>
 
-    <p>Hello World!</p>
+        <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-  </body>
+        <script>
+            var myFirebaseRef = new Firebase("https://burning-torch-3848.firebaseio.com/");
+
+            var handleSwitchState = function(snapshot) {
+                var item = snapshot.val();
+                $("#" + snapshot.key()).val(item.state);
+            };
+
+            myFirebaseRef.on('child_added', handleSwitchState);
+            myFirebaseRef.on('child_changed', handleSwitchState);
+
+            $(document).ready(function() {
+                $(':button').on('click', function(e) {
+                    var id = $(this).attr('id');
+                    var currentState = $(this).val();
+                    var newState = currentState == "on" ? "off" : "on";
+                    var switchObj;
+                    var switchState;
+
+                    $(this).val(newState);
+
+                    switchState = {
+                        state: newState,
+                    };
+
+                    switchObj = {};
+                    switchObj[id] = switchState;
+
+                    myFirebaseRef.update(switchObj);
+                });
+            });
+        </script>
+
+    </head>
+    <body>
+
+        <input type="button" id="switch00" value="on">
+
+        <input type="button" id="switch10" value="off">
+
+        <input type="button" id="switch20" value="off">
+
+        <input type="button" id="switch30" value="on">
+
+    </body>
 </html>
