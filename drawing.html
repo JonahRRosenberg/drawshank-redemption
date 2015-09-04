@@ -67,11 +67,24 @@
                 };
 
                 //Keep track of if the mouse is up or down
-                myCanvas.onmousedown = function () {mouseDown = 1;};
+                myCanvas.onmousedown = function () {
+                    console.log("Mouse down"); //TODO: REMOVE
+                    mouseDown = 1;
+                };
                 myCanvas.onmouseout = myCanvas.onmouseup = function () {
+                    console.log("Mouse out"); //TODO: REMOVE
                     saveCurPoints();
                     mouseDown = 0;
                     curPoints = [];
+                };
+
+                myCanvas.touchstart = function(e) {
+                    console.log("Starting touch");
+                    alert("Starting touch!");
+                };
+
+                myCanvas.touchmove = function(e) {
+                    console.log("Moving touch");
                 };
 
                 var drawCurve = function(points, indexOffset, color) {
