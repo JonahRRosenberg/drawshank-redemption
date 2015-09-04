@@ -75,13 +75,20 @@
                 };
 
                 var drawCurve = function(points, indexOffset, color) {
+                    var isSinglePoint = (points.length === 1);
+
+                    var startingPoint = points[indexOffset];
+                    var secondPoint = !isSinglePoint ? points[indexOffset+1] : [startingPoint[0]+1, startingPoint[1]+1];
+                    var thirdPoint = !isSinglePoint ? points[indexOffset+2] : [startingPoint[0]-1, startingPoint[1]-1];
+                    var fourthPoint = !isSinglePoint ? points[indexOffset+3] : startingPoint;
+
                     myContext.beginPath();
-                    myContext.moveTo(points[indexOffset][0], points[indexOffset][1]);
+                    myContext.moveTo(startingPoint[0], startingPoint[1]);
                     myContext.bezierCurveTo(
-                        points[indexOffset+1][0], points[indexOffset+1][1],
-                        points[indexOffset+2][0], points[indexOffset+2][1],
-                        points[indexOffset+3][0], points[indexOffset+3][1]);
-                    myContext.lineWidth = (color != "fff") ? 3 : 5;
+                        secondPoint[0], secondPoint[1],
+                        thirdPoint[0], thirdPoint[1],
+                        fourthPoint[0], fourthPoint[1]);
+                    myContext.lineWidth = (color != "fff") ? 3 : 10;
 
                     myContext.strokeStyle = "#" + color;
                     myContext.stroke();
@@ -123,9 +130,13 @@
                 $(myCanvas).mousedown(drawLineOnMouseMove);
 
                 var drawPoints = function(lineData) {
-                    for (var i=0; i < lineData.points.length; i++) {
-                        if (i % 4 === 0 && (i+3 < lineData.points.length)) {
-                            drawCurve(lineData.points, i, lineData.color);
+                    if (lineData.points.length === 1) {
+                        drawCurve(lineData.points, 0, lineData.color);
+                    } else {
+                        for (var i=0; i < lineData.points.length; i++) {
+                            if (i % 4 === 0 && (i+3 < lineData.points.length)) {
+                                drawCurve(lineData.points, i, lineData.color);
+                            }
                         }
                     }
                 }
