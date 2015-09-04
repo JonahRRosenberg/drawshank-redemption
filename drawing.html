@@ -10,11 +10,6 @@
 
         <script src="update-connectivity.js"></script>
 
-        <script>
-            var myFirebaseRef = new Firebase("https://burning-torch-3848.firebaseio.com/");
-
-        </script>
-
         <meta name="viewport" content="initial-scale=1.0">
 
     </head>
@@ -68,23 +63,12 @@
 
                 //Keep track of if the mouse is up or down
                 myCanvas.onmousedown = function () {
-                    console.log("Mouse down"); //TODO: REMOVE
                     mouseDown = 1;
                 };
                 myCanvas.onmouseout = myCanvas.onmouseup = function () {
-                    console.log("Mouse out"); //TODO: REMOVE
                     saveCurPoints();
                     mouseDown = 0;
                     curPoints = [];
-                };
-
-                myCanvas.touchstart = function(e) {
-                    console.log("Starting touch");
-                    alert("Starting touch!");
-                };
-
-                myCanvas.touchmove = function(e) {
-                    console.log("Moving touch");
                 };
 
                 var drawCurve = function(points, indexOffset, color) {
@@ -113,9 +97,10 @@
 
                     e.preventDefault();
 
-                    var offset = $('canvas').offset();
-                    var curX = e.pageX - offset.left;
-                    var curY = e.pageY - offset.top;
+                    var varWithPageInfo = (typeof e.pageX !== 'undefined') ? e : e.targetTouches[0];
+
+                    var curX = varWithPageInfo.pageX - myCanvas.offsetLeft;
+                    var curY = varWithPageInfo.pageY - myCanvas.offsetTop;
 
                     if (curPoints.length === 0) {
                         curPoints.push([curX, curY]);
@@ -141,6 +126,10 @@
 
                 $(myCanvas).mousemove(drawLineOnMouseMove);
                 $(myCanvas).mousedown(drawLineOnMouseMove);
+
+                myCanvas.addEventListener("touchstart", myCanvas.onmousedown, false);
+                myCanvas.addEventListener("touchmove", drawLineOnMouseMove, true);
+                myCanvas.addEventListener("touchend", myCanvas.onmouseout, false);
 
                 var drawPoints = function(lineData) {
                     if (lineData.points.length === 1) {
