@@ -53,3 +53,30 @@
 .onoffswitch-checkbox:checked + .onoffswitch-label:before {
     right: 0px; 
 }
+
+.hide {
+  display: none;
+}
+
+.l-demo-container {
+  width: 500px;
+}
+
+#colorholder {
+  width: 480px;
+  height: 30px;
+  border: 2px solid #424547;
+}
+
+#drawing-canvas {
+  border: 3px solid #999;
+}
+
+.colorbox {
+  width: 22px;
+  height: 22px;
+  margin: 1px;
+  display: inline-block;
+  border: 3px solid black;
+}
+
