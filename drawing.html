@@ -37,8 +37,7 @@
                 var mouseDown = 0;
                 var curPoints = []
 
-                //Create a reference to the pixel data for our drawing.
-                var pixelDataRef = new Firebase('https://burning-torch-3848.firebaseio.com/pixel-data');
+                var drawingDataRef = new Firebase('https://burning-torch-3848.firebaseio.com/drawing-data');
 
                 // Set up our canvas
                 var myCanvas = document.getElementById('drawing-canvas');
@@ -61,12 +60,32 @@
                     item.appendTo('#colorholder');
                 }
 
+                var saveCurPoints = function() {
+                    if (curPoints.length > 0) {
+                        drawingDataRef.push().set({ "color": currentColor, "points" : curPoints});
+                    }
+                };
+
                 //Keep track of if the mouse is up or down
                 myCanvas.onmousedown = function () {mouseDown = 1;};
                 myCanvas.onmouseout = myCanvas.onmouseup = function () {
+                    saveCurPoints();
                     mouseDown = 0;
                     curPoints = [];
                 };
+
+                var drawCurve = function(points, indexOffset, color) {
+                    myContext.beginPath();
+                    myContext.moveTo(points[indexOffset][0], points[indexOffset][1]);
+                    myContext.bezierCurveTo(
+                        points[indexOffset+1][0], points[indexOffset+1][1],
+                        points[indexOffset+2][0], points[indexOffset+2][1],
+                        points[indexOffset+3][0], points[indexOffset+3][1]);
+                    myContext.lineWidth = (color != "fff") ? 3 : 5;
+
+                    myContext.strokeStyle = "#" + color;
+                    myContext.stroke();
+                }
 
                 //Draw a line from the mouse's last position to its current position
                 var drawLineOnMouseMove = function(e) {
@@ -86,47 +105,42 @@
                     var lastX = lastPoint[0];
                     var lastY = lastPoint[1];
 
-                    //Moved - method
                     if (lastX !== curX || lastY !== curY) {
                         curPoints.push([curX, curY])
 
-                        if (curPoints.length === 4) {
-                            myContext.beginPath();
-                            // myContext.moveTo(188, 130);
-                            // myContext.bezierCurveTo(140, 10, 388, 10, 388, 170);
-                            myContext.moveTo(curPoints[0][0], curPoints[0][1]);
-                            myContext.bezierCurveTo(
-                                curPoints[1][0], curPoints[1][1],
-                                curPoints[2][0], curPoints[2][1],
-                                curPoints[3][0], curPoints[3][1]);
-                            myContext.lineWidth = 3;
+                        if (curPoints.length % 4 === 0) {
+                            var indexOffset = curPoints.length-4;
 
-                            myContext.strokeStyle = "#" + currentColor;
-                            myContext.stroke();
+                            drawCurve(curPoints, indexOffset, currentColor);
 
-                            curPoints = [curPoints[3]];
+                            // Forces each curve to connect
+                            curPoints.push(curPoints[curPoints.length-1]);
                         }
                     }
-                    // pixelDataRef.child(curX + ":" + curY).set(currentColor === "fff" ? null : currentColor);
                 };
 
                 $(myCanvas).mousemove(drawLineOnMouseMove);
                 $(myCanvas).mousedown(drawLineOnMouseMove);
 
-                // Add callbacks that are fired any time the pixel data changes and adjusts the canvas appropriately.
-                // Note that child_added events will be fired for initial pixel data as well.
-                var drawPixel = function(snapshot) {
-                    var coords = snapshot.key().split(":");
-                    myContext.fillStyle = "#" + snapshot.val();
-                    myContext.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
+                var drawPoints = function(lineData) {
+                    for (var i=0; i < lineData.points.length; i++) {
+                        if (i % 4 === 0 && (i+3 < lineData.points.length)) {
+                            drawCurve(lineData.points, i, lineData.color);
+                        }
+                    }
+                }
+
+                var onDraw = function(snapshot) {
+                    drawPoints(snapshot.val());
                 };
                 var clearPixel = function(snapshot) {
-                    var coords = snapshot.key().split(":");
-                    myContext.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
+                    var snapVal = snapshot.val();
+                    snapVal.color = "fff"; // Color in white
+                    drawPoints(snapVal);
                 };
-                // pixelDataRef.on('child_added', drawPixel);
-                // pixelDataRef.on('child_changed', drawPixel);
-                // pixelDataRef.on('child_removed', clearPixel);
+                drawingDataRef.on('child_added', onDraw);
+                drawingDataRef.on('child_changed', onDraw);
+                drawingDataRef.on('child_removed', clearPixel);
             });
         </script>
 
