@@ -33,7 +33,9 @@
         <script>
             $(document).ready(function () {
                 //Set up some globals
-                var pixSize = 8, lastPoint = null, currentColor = "000", mouseDown = 0;
+                var currentColor = "000";
+                var mouseDown = 0;
+                var curPoints = []
 
                 //Create a reference to the pixel data for our drawing.
                 var pixelDataRef = new Firebase('https://burning-torch-3848.firebaseio.com/pixel-data');
@@ -62,7 +64,8 @@
                 //Keep track of if the mouse is up or down
                 myCanvas.onmousedown = function () {mouseDown = 1;};
                 myCanvas.onmouseout = myCanvas.onmouseup = function () {
-                    mouseDown = 0; lastPoint = null;
+                    mouseDown = 0;
+                    curPoints = [];
                 };
 
                 //Draw a line from the mouse's last position to its current position
@@ -71,30 +74,40 @@
 
                     e.preventDefault();
 
-                    // Bresenham's line algorithm. We use this to ensure smooth lines are drawn
                     var offset = $('canvas').offset();
-                    var x1 = Math.floor((e.pageX - offset.left) / pixSize - 1),
-                    y1 = Math.floor((e.pageY - offset.top) / pixSize - 1);
-                    var x0 = (lastPoint == null) ? x1 : lastPoint[0];
-                    var y0 = (lastPoint == null) ? y1 : lastPoint[1];
-                    var dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
-                    var sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1, err = dx - dy;
-                    while (true) {
-                        //write the pixel into Firebase, or if we are drawing white, remove the pixel
-                        pixelDataRef.child(x0 + ":" + y0).set(currentColor === "fff" ? null : currentColor);
+                    var curX = e.pageX - offset.left;
+                    var curY = e.pageY - offset.top;
 
-                        if (x0 == x1 && y0 == y1) break;
-                        var e2 = 2 * err;
-                        if (e2 > -dy) {
-                            err = err - dy;
-                            x0 = x0 + sx;
-                        }
-                        if (e2 < dx) {
-                            err = err + dx;
-                            y0 = y0 + sy;
+                    if (curPoints.length === 0) {
+                        curPoints.push([curX, curY]);
+                    }
+
+                    var lastPoint = curPoints[curPoints.length-1];
+                    var lastX = lastPoint[0];
+                    var lastY = lastPoint[1];
+
+                    //Moved - method
+                    if (lastX !== curX || lastY !== curY) {
+                        curPoints.push([curX, curY])
+
+                        if (curPoints.length === 4) {
+                            myContext.beginPath();
+                            // myContext.moveTo(188, 130);
+                            // myContext.bezierCurveTo(140, 10, 388, 10, 388, 170);
+                            myContext.moveTo(curPoints[0][0], curPoints[0][1]);
+                            myContext.bezierCurveTo(
+                                curPoints[1][0], curPoints[1][1],
+                                curPoints[2][0], curPoints[2][1],
+                                curPoints[3][0], curPoints[3][1]);
+                            myContext.lineWidth = 3;
+
+                            myContext.strokeStyle = "#" + currentColor;
+                            myContext.stroke();
+
+                            curPoints = [curPoints[3]];
                         }
                     }
-                    lastPoint = [x1, y1];
+                    // pixelDataRef.child(curX + ":" + curY).set(currentColor === "fff" ? null : currentColor);
                 };
 
                 $(myCanvas).mousemove(drawLineOnMouseMove);
@@ -111,9 +124,9 @@
                     var coords = snapshot.key().split(":");
                     myContext.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
                 };
-                pixelDataRef.on('child_added', drawPixel);
-                pixelDataRef.on('child_changed', drawPixel);
-                pixelDataRef.on('child_removed', clearPixel);
+                // pixelDataRef.on('child_added', drawPixel);
+                // pixelDataRef.on('child_changed', drawPixel);
+                // pixelDataRef.on('child_removed', clearPixel);
             });
         </script>
 
